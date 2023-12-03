@@ -1,0 +1,52 @@
+name: Container Image
+run-name: ${{ github.actor }} is building a new image
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+    - main
+    - development
+    paths:
+    - docker/**
+    - src/**
+    - tests/**
+    - pyproject.yml
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Git Checkout
+      uses: actions/checkout@v4
+    - name: Authenticate with the remote Container Registry
+      uses: docker/login-action@v2
+      with:
+        registry: ${{ vars.DOCKER_REGISTRY }}
+        username: ${{ vars.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.12"
+    - name: Setup Poetry
+      uses: snok/install-poetry@v1
+      with:
+        version: 1.6.1
+        virtualenvs-create: true
+        virtualenvs-in-project: true
+        installer-parallel: true
+    - name: Build the image and run the checks
+      run: |
+        # Determine the version of the image.
+        version=$(poetry version -n --no-ansi -s)
+
+        # Validation and test stage
+        docker build . -f docker/Dockerfile --target=validate
+
+        # Production stage
+        docker build . -f docker/Dockerfile --target=production --tag ${{ vars.DOCKER_REGISTRY }}/peinser/template:$version
+
+        # Push to the remote container registry.
+        docker push ${{ vars.DOCKER_REGISTRY }}/peinser/template:$version
