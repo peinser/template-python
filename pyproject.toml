@@ -40,7 +40,7 @@ unfixable = [
     "ERA", # do not autoremove commented out code
 ]
 target-version = "py312"
-line-length = 88
+line-length = 120
 extend-select = [
     "B",   # flake8-bugbear
     "C4",  # flake8-comprehensions

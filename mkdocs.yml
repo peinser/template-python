@@ -1,9 +1,9 @@
-site_name: pyconiq
-site_description: Unofficial Python package to interface with the payment processor Payconiq.
+site_name: template
+site_description: TODO
 site_author: Peinser
 edit_uri: edit/main/docs/
-repo_name: pyconiq
-repo_url: https://github.com/peinser/pyconiq
+repo_name: template
+repo_url: TODO
 copyright: Maintained by <a href="hello@peinser.com">Peinser</a>.
 
 nav:
@@ -20,7 +20,7 @@ plugins:
     - docs/gen_reference_pages.py
 - mkdocstrings:
     watch:
-    - src/pyconiq
+    - src/template
 
 theme:
   name: material
