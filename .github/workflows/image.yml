@@ -1,4 +1,4 @@
-name: Container Image
+name: Image
 run-name: ${{ github.actor }} is building a new image
 
 on:
@@ -11,7 +11,7 @@ on:
     - docker/**
     - src/**
     - tests/**
-    - pyproject.yml
+    - pyproject.toml
 
 jobs:
 
@@ -26,21 +26,10 @@ jobs:
         registry: ${{ vars.DOCKER_REGISTRY }}
         username: ${{ vars.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
-    - name: Setup Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: "3.12"
-    - name: Setup Poetry
-      uses: snok/install-poetry@v1
-      with:
-        version: 1.6.1
-        virtualenvs-create: true
-        virtualenvs-in-project: true
-        installer-parallel: true
     - name: Build the image and run the checks
       run: |
         # Determine the version of the image.
-        version=$(poetry version -n --no-ansi -s)
+        version=$(python3 -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
 
         # Validation and test stage
         docker build . -f docker/Dockerfile --target=validate

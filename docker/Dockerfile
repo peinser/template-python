@@ -1,38 +1,22 @@
-# python-base #################################################################
+# builder-base ################################################################
 
-FROM python:3.12-slim AS python-base
+FROM harbor.peinser.com/ghcr/astral-sh/uv:python3.14-bookworm-slim AS builder-base
 
 LABEL artifact=false
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
-    PIP_NO_CACHE_DIR=off \
-    PIP_DISABLE_PIP_VERSION_CHECK=on \
-    PIP_DEFAULT_TIMEOUT=100 \
-    POETRY_HOME="/opt/poetry" \
-    POETRY_VIRTUALENVS_IN_PROJECT=true \
-    POETRY_NO_INTERACTION=1 \
+    UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy \
     PYSETUP_PATH="/opt/pysetup" \
     VENV_PATH="/opt/pysetup/.venv"
 
-ENV PATH="$POETRY_HOME/bin:$VENV_PATH/bin:$PATH"
-
-# builder-base ################################################################
-
-FROM python-base AS builder-base
-
-LABEL artifact=false
-
-RUN apt-get update && apt-get install --no-install-recommends -y \
-    build-essential \
-    curl
-
-ENV POETRY_VERSION=1.6.1
-RUN curl -sSL https://install.python-poetry.org | python -
-
 WORKDIR ${PYSETUP_PATH}
+COPY pyproject.toml uv.lock ./
+RUN uv sync --frozen --no-dev --no-install-project
+
 COPY . .
-RUN poetry install --only=main && poetry build
+RUN uv sync --frozen --no-dev
 
 # validate ####################################################################
 
@@ -40,32 +24,33 @@ FROM builder-base AS validate
 
 LABEL artifact=false
 
-COPY . .
-RUN poetry install --with=dev --with=main && \
-    # Linting
-    poetry run black --check --diff src/template && \
-    poetry run ruff check src/template && \
-    poetry run mypy src/template && \
-    # Tests and coverage
-    # Disable coverage for now.
-    poetry run coverage run -m pytest --cov=src/template \
-    # Security
-    poetry run bandit src && \
-    poetry run safety check
+RUN uv sync --frozen && \
+    uv run ruff format --check src/template && \
+    uv run ruff check src/template && \
+    uv run mypy src/template && \
+    uv run coverage run -m pytest --cov=src/template && \
+    uv run bandit -r src
 
 # production ##################################################################
 
-FROM python-base AS production
+FROM harbor.peinser.com/dockerhub/python:3.14-slim AS production
 
 LABEL artifact=true
 
+ENV VENV_PATH="/app/.venv"
+ENV PATH="/app/.venv/bin:$PATH"
+
+RUN groupadd --gid 1001 app && \
+    useradd --uid 1001 --gid app --shell /bin/bash --create-home app
+
 WORKDIR /app
 
-COPY --from=builder-base $VENV_PATH $VENV_PATH
-COPY --from=builder-base ${PYSETUP_PATH}/dist/template*.whl .
+COPY --from=builder-base /opt/pysetup/.venv /app/.venv
 COPY ./docker/entrypoint.sh ./entrypoint.sh
 
-RUN pip install template*.whl && rm template*.whl && \
-    chmod +x ./entrypoint.sh
+RUN chmod +x ./entrypoint.sh && \
+    chown -R app:app /app
 
-ENTRYPOINT ./entrypoint.sh $0 $@
+USER app
+
+ENTRYPOINT ["./entrypoint.sh"]
