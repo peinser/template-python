@@ -20,22 +20,50 @@ jobs:
     steps:
     - name: Git Checkout
       uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v4
+
     - name: Authenticate with the remote Container Registry
-      uses: docker/login-action@v3
+      uses: docker/login-action@v4
       with:
         registry: ${{ vars.DOCKER_REGISTRY }}
         username: ${{ vars.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
-    - name: Build the image and run the checks
+
+    - name: Determine image version
+      id: version
       run: |
-        # Determine the version of the image.
-        version=$(python3 -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
+        echo "value=$(python3 -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")" >> $GITHUB_OUTPUT
 
-        # Validation and test stage
-        docker build . -f docker/Dockerfile --target=validate
+    - name: Extract image metadata
+      id: meta
+      uses: docker/metadata-action@v6
+      with:
+        images: ${{ vars.DOCKER_REGISTRY }}/peinser/template
+        tags: |
+          type=raw,value=${{ steps.version.outputs.value }}-{{sha}}
+          type=sha,format=short
 
-        # Production stage
-        docker build . -f docker/Dockerfile --target=production --tag ${{ vars.DOCKER_REGISTRY }}/peinser/template:$version
+    - name: Validate
+      uses: docker/build-push-action@v7
+      with:
+        context: .
+        file: docker/Dockerfile
+        target: validate
+        push: false
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
 
-        # Push to the remote container registry.
-        docker push ${{ vars.DOCKER_REGISTRY }}/peinser/template:$version
+    - name: Build and push production image
+      uses: docker/build-push-action@v7
+      with:
+        context: .
+        file: docker/Dockerfile
+        target: production
+        push: true
+        # platforms: linux/amd64,linux/arm64
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max

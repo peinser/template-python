@@ -1,5 +1,5 @@
 r"""
-Peinser template project.
+Template project.
 """
 
 from __future__ import annotations
