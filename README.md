@@ -1,4 +1,4 @@
-<div align="center">
+<!-- <div align="center">
   <img src="https://github.com/peinser/template/actions/workflows/docs.yml/badge.svg" alt="Docs">
   <img src="https://github.com/peinser/template/actions/workflows/image.yml/badge.svg" alt="Docker Image">
   <img src="https://github.com/peinser/template/actions/workflows/pypi.yml/badge.svg" alt="PyPI">
@@ -10,7 +10,7 @@
 
 <p align="center">
   <img src="docs/assets/logo.png" height=100%>
-</p>
+</p> -->
 
 ---
 
