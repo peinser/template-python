@@ -44,7 +44,7 @@ Powered by [Copier](https://copier.readthedocs.io) — scaffold a new project in
 Run the following command and answer the prompts:
 
 ```bash
-copier copy gh:peinser/template <destination-directory>
+copier copy gh:peinser/template-python <destination-directory>
 ```
 
 Copier will ask for:
