@@ -35,7 +35,7 @@
 			],
 			"settings": {
 				// Your existing Python setting
-				"python.defaultInterpreterPath": "/opt/pysetup/.venv/bin/python", // updated key (preferred over pythonPath)
+				"python.defaultInterpreterPath": "/opt/pysetup/.venv/bin/python"  // updated key (preferred over pythonPath)
 
 				// Optional C/C++ tweaks – adjust based on your container's compilers
 				// "C_Cpp.default.compilerPath": "/usr/bin/g++", // or /usr/bin/clang++ if using clang
