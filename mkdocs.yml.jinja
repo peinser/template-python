@@ -1,9 +1,9 @@
-site_name: template
-site_description: TODO
-site_author: Peinser
+site_name: {{ project_name }}
+site_description: {{ project_description }}
+site_author: {{ author_name }}
 edit_uri: edit/main/docs/
-repo_name: template
-repo_url: TODO
+repo_name: {{ module_name }}
+repo_url: {{ repo_url }}
 copyright: Maintained by <a href="hello@peinser.com">Peinser</a>.
 
 nav:
@@ -20,7 +20,7 @@ plugins:
     - docs/gen_reference_pages.py
 - mkdocstrings:
     watch:
-    - src/template
+    - src/{{ module_name }}
 
 theme:
   name: material

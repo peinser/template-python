@@ -1,28 +1,20 @@
-<!-- <div align="center">
-  <img src="https://github.com/peinser/template/actions/workflows/docs.yml/badge.svg" alt="Docs">
-  <img src="https://github.com/peinser/template/actions/workflows/image.yml/badge.svg" alt="Docker Image">
-  <img src="https://github.com/peinser/template/actions/workflows/pypi.yml/badge.svg" alt="PyPI">
-  <img src="https://badgen.net/badge/license/Apache-2.0/blue" alt="License">
-  <img src="https://img.shields.io/pypi/v/template" alt="PyPI version">
-  <img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json" alt="Ruff">
-  <img src="https://img.shields.io/docker/v/peinser/template" alt="Docker version">
-</div>
-
-<p align="center">
-  <img src="docs/assets/logo.png" height=100%>
-</p> -->
-
 ---
 
 A modern Python package template with batteries included: strict type checking, automated linting, multi-stage Docker builds, MkDocs documentation, and a full CI/CD pipeline via GitHub Actions.
+
+Powered by [Copier](https://copier.readthedocs.io) — scaffold a new project in seconds, and keep it up to date as the template evolves.
 
 ---
 
 ## Table of Contents
 
 - [Features](#features)
-- [Prerequisites](#prerequisites)
-- [Getting Started](#getting-started)
+- [Using this Template](#using-this-template)
+  - [Generating a New Project](#generating-a-new-project)
+  - [Updating an Existing Project](#updating-an-existing-project)
+  - [Template Variables](#template-variables)
+- [Working on the Template Itself](#working-on-the-template-itself)
+  - [Prerequisites](#prerequisites)
   - [Option A — Dev Container (recommended)](#option-a--dev-container-recommended)
   - [Option B — Local Setup](#option-b--local-setup)
 - [Project Structure](#project-structure)
@@ -33,11 +25,73 @@ A modern Python package template with batteries included: strict type checking, 
 - [Docker](#docker)
 - [CI/CD](#cicd)
 - [Publishing to PyPI](#publishing-to-pypi)
-- [Customizing the Template](#customizing-the-template)
 - [Contributing](#contributing)
 - [License](#license)
 
 ---
+
+## Using this Template
+
+### Generating a New Project
+
+> **Requirement:** Copier 9.0 or newer. Install it once with:
+> ```bash
+> pipx install copier
+> # or
+> uv tool install copier
+> ```
+
+Run the following command and answer the prompts:
+
+```bash
+copier copy gh:peinser/template <destination-directory>
+```
+
+Copier will ask for:
+
+| Variable | Description |
+|---|---|
+| `project_name` | Human-readable name (e.g. `My Awesome Library`) |
+| `project_description` | One-line description of the project |
+| `author_name` | Your full name |
+| `author_email` | Your e-mail address |
+| `repo_url` | Full HTTPS GitHub URL (e.g. `https://github.com/owner/repo`) |
+| `module_name` | Python module name — lowercase, underscores only (e.g. `my_library`) |
+
+After generation, `git init` and `git add .` are run automatically. Then:
+
+```bash
+cd <destination-directory>
+uv sync --locked    # install all dependencies
+make help           # see available tasks
+```
+
+> **Tip:** The answers are stored in `.copier-answers.yml` inside the generated project. Do not delete this file — it is required for future updates.
+
+### Updating an Existing Project
+
+When this template is updated, regenerate your project to pull in the latest changes:
+
+```bash
+cd <your-project>
+copier update
+```
+
+Copier replays your original answers, applies the diff, and lets you resolve any conflicts. Review the changes with `git diff` before committing.
+
+### Template Variables
+
+All variables are validated at prompt time:
+
+- `author_email` must match a basic `user@host.tld` pattern.
+- `repo_url` must start with `https://github.com/`.
+- `module_name` must be a valid Python identifier: starts with a lowercase letter, followed by lowercase letters, digits, or underscores.
+
+---
+
+## Working on the Template Itself
+
+The sections below describe the reference project bundled with this template. They also serve as living documentation for the generated project's `README.md`.
 
 ## Features
 
@@ -68,8 +122,6 @@ A modern Python package template with batteries included: strict type checking, 
 - [uv](https://docs.astral.sh/uv/getting-started/installation/)
 
 ---
-
-## Getting Started
 
 ### Option A — Dev Container (recommended)
 
@@ -108,6 +160,7 @@ That's it. Skip to [Development Workflow](#development-workflow).
    git clone https://github.com/peinser/template.git
    cd template
    ```
+
 
 2. **Install uv** (if not already installed):
 
@@ -337,8 +390,6 @@ The dev container ships with [`act`](https://github.com/nektos/act), which lets 
 
 ---
 
-Here's a clean, professional documentation section you can add to your project's **README.md** (or a dedicated `CONTRIBUTING.md` / `RELEASE.md` file).
-
 ## Publishing to PyPI
 
 This project uses [`uv`](https://docs.astral.sh/uv/) for building and publishing. Releases are published automatically via GitHub Actions using **Trusted Publishing** (OIDC), which is the most secure method in 2026 — no long-lived API tokens are required.
@@ -401,25 +452,13 @@ The workflow will:
 
 ## Customizing the Template
 
-After forking or using this template, rename the project to match your package:
+All renaming and substitution is handled automatically by Copier — see [Using this Template](#using-this-template).
 
-1. **`pyproject.toml`** — update `name`, `version`, `description`, `authors`, and `requires-python`.
-2. **`src/template/`** — rename the directory to your package name.
-3. **`pyproject.toml`** — update `[tool.hatch.build.targets.wheel] packages` and all `[tool.mypy] files` / `[tool.towncrier] package` references.
-4. **`mkdocs.yml`** — update `site_name` and any repository URLs.
-5. **`.github/workflows/`** — update the Docker registry path and image name in `image.yml`. Also, follow the `PyPi` section in this `README.md` if you would like to publish to `PyPi`.
-6. **`README.md`** — replace badge URLs, logo, and project description.
-7. **`CODEOWNERS`** — replace `@peinser` and `@JoeriHermans` with your GitHub handle(s).
-8. **`docker/Dockerfile`** - replace `template`.
+After generation you may still want to manually adjust:
 
-Other files containing references to `template`. Adjust accordingly.
-
-```
-./uv.lock
-./CHANGELOG.md
-./src/template/__init__.py
-./src/template/__version__.py
-```
+- **`.github/workflows/image.yml`** — update the Docker registry path and image name.
+- **`CODEOWNERS`** — replace the placeholder GitHub handle(s) with your own.
+- **`docker/entrypoint.sh`** — add your application's startup logic.
 
 ---
 

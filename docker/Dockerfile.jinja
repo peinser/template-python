@@ -25,10 +25,10 @@ FROM builder-base AS validate
 LABEL artifact=false
 
 RUN uv sync --frozen && \
-    uv run ruff format --check src/template && \
-    uv run ruff check src/template && \
-    uv run mypy src/template && \
-    uv run coverage run -m pytest --cov=src/template && \
+    uv run ruff format --check src/{{ module_name }} && \
+    uv run ruff check src/{{ module_name }} && \
+    uv run mypy src/{{ module_name }} && \
+    uv run coverage run -m pytest --cov=src/{{ module_name }} && \
     uv run bandit -r src
 
 # production ##################################################################

@@ -1,0 +1,44 @@
+_min_copier_version: "9.0.0"
+_answers_file: ".copier-answers.yml"
+_exclude:
+  - "README.md"
+  - "CHANGELOG.md"
+_tasks:
+  - "git init --initial-branch=main"
+  - "git add ."
+
+project_name:
+  type: str
+  help: What is your project name? (e.g. My Awesome Library)
+
+project_description:
+  type: str
+  help: A short one-line description of what your project does.
+
+author_name:
+  type: str
+  help: Your full name.
+
+author_email:
+  type: str
+  help: Your e-mail address.
+  validator: >-
+    {% if not (author_email | regex_search('^[^@]+@[^@]+\.[^@]+$')) %}
+    Must be a valid e-mail address.
+    {% endif %}
+
+repo_url:
+  type: str
+  help: Full HTTPS GitHub URL of your repository (e.g. https://github.com/owner/repo).
+  validator: >-
+    {% if not repo_url.startswith('https://github.com/') %}
+    Must be a full GitHub HTTPS URL starting with https://github.com/
+    {% endif %}
+
+module_name:
+  type: str
+  help: Python module name — lowercase letters, digits, and underscores only (e.g. my_library).
+  validator: >-
+    {% if not (module_name | regex_search('^[a-z][a-z0-9_]*$')) %}
+    Must be a valid Python identifier: start with a lowercase letter, then lowercase letters, digits, or underscores only.
+    {% endif %}
