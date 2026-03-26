@@ -368,6 +368,23 @@ After forking or using this template, rename the project to match your package:
 
 ---
 
+## Files to modify
+
+```
+./docker/Dockerfile
+./mkdocs.yml
+./uv.lock
+./CHANGELOG.md
+./CODEOWNERS
+./pyproject.toml
+./docs/index.md
+./README.md
+./src/template/__init__.py
+./src/template/__version__.py
+```
+
+---
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the full contribution guide, including how to set up a PAT for local CI testing with `act`.
