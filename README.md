@@ -407,7 +407,7 @@ After forking or using this template, rename the project to match your package:
 2. **`src/template/`** — rename the directory to your package name.
 3. **`pyproject.toml`** — update `[tool.hatch.build.targets.wheel] packages` and all `[tool.mypy] files` / `[tool.towncrier] package` references.
 4. **`mkdocs.yml`** — update `site_name` and any repository URLs.
-5. **`.github/workflows/`** — update the Docker registry path and image name in `image.yml`.
+5. **`.github/workflows/`** — update the Docker registry path and image name in `image.yml`. Also, follow the `PyPi` section in this `README.md` if you would like to publish to `PyPi`.
 6. **`README.md`** — replace badge URLs, logo, and project description.
 7. **`CODEOWNERS`** — replace `@peinser` and `@JoeriHermans` with your GitHub handle(s).
 8. **`docker/Dockerfile`** - replace `template`.
