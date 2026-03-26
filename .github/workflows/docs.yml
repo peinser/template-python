@@ -22,15 +22,23 @@ jobs:
     - name: Git Checkout
       uses: actions/checkout@v4
     - name: Install uv
-      uses: astral-sh/setup-uv@v5
+      uses: astral-sh/setup-uv@v7
       with:
         enable-cache: true
-        python-version: "3.14"
-    - name: Configure Git
+        python-version: "3.13"
+    - name: Build documentation
       run: |
-        git config user.name "github-actions[bot]"
-        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-    - name: Deploy documentation
-      run: |
-        uv sync --group docs
-        uv run mkdocs gh-deploy --clean --verbose
+        uv sync --group docs --frozen
+        uv run mkdocs build --verbose
+
+    - name: Setup Pages
+      uses: actions/configure-pages@v5
+
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: 'site'
+
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4

@@ -12,21 +12,38 @@ on:
     - tests/**
     - pyproject.toml
 
-jobs:
+permissions:
+  contents: read
+  id-token: write
 
-  build:
+jobs:
+  publish:
     runs-on: ubuntu-latest
+    environment: pypi
+
     steps:
-    - name: Git Checkout
-      uses: actions/checkout@v4
-    - name: Install uv
-      uses: astral-sh/setup-uv@v5
-      with:
-        enable-cache: true
-        python-version: "3.14"
-    - name: Publish
-      env:
-        UV_PUBLISH_TOKEN: ${{ secrets.PYPI_API_KEY }}
-      run: |
-        uv build
-        uv publish
+      - name: Git Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          python-version: "3.14"
+
+      - name: Build package
+        run: uv build --frozen
+
+      - name: Smoke test wheel
+        run: |
+          uv run --isolated --no-project --with dist/*.whl python -c "
+            import {{ your_package_name }}
+            print({{ your_package_name }}.__version__)
+          "
+
+      - name: Publish to PyPI
+        env:
+          UV_PUBLISH_TOKEN: ${{ secrets.PYPI_API_KEY }}   # Remove this line if using Trusted Publishing
+        run: uv publish --frozen

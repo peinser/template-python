@@ -337,20 +337,65 @@ The dev container ships with [`act`](https://github.com/nektos/act), which lets 
 
 ---
 
+Here's a clean, professional documentation section you can add to your project's **README.md** (or a dedicated `CONTRIBUTING.md` / `RELEASE.md` file).
+
 ## Publishing to PyPI
 
-The `pypi.yml` workflow publishes the package automatically on push to `main`. To enable it:
+This project uses [`uv`](https://docs.astral.sh/uv/) for building and publishing. Releases are published automatically via GitHub Actions using **Trusted Publishing** (OIDC), which is the most secure method in 2026 — no long-lived API tokens are required.
 
-1. Generate an API token at [pypi.org/manage/account/token/](https://pypi.org/manage/account/token/).
-2. Add it as a repository secret named `PYPI_API_KEY` under **Settings → Secrets and variables → Actions**.
+### 1. Create a GitHub Environment (Recommended)
 
-To build the package locally without publishing:
+1. Go to your repository → **Settings** → **Environments** → **New environment**.
+2. Name it **`pypi`** (this name is conventional and works well with the workflow).
+3. (Optional but recommended) Add **protection rules**:
+   - Require manual approval from specific people/teams (adds a safety gate before publishing).
+   - You can also restrict which branches or tags can deploy to this environment.
 
-```bash
-uv build
-```
+This environment provides an extra layer of control and clearly signals that the job is performing a production release.
 
-Artefacts are written to `dist/`.
+### 2. Configure Trusted Publishing on PyPI
+
+You only need to do this **once** per package (or when you change the workflow name/repository).
+
+1. Go to [https://pypi.org/manage/account/publishing/](https://pypi.org/manage/account/publishing/) (or navigate to your project → **Manage** → **Publishing**).
+2. Click **Add a new trusted publisher**.
+3. Fill in the following details:
+   - **Publisher**: `GitHub`
+   - **Repository owner**: your GitHub username or organization (e.g. `peinser`)
+   - **Repository name**: the name of this repo (e.g. `template`)
+   - **Workflow filename**: `pypi.yml` (or whatever you name the workflow file, e.g. `.github/workflows/pypi.yml`)
+   - **Environment name**: `pypi` (must match the environment you created in GitHub)
+
+4. Save the trusted publisher.
+
+> **Tip**: You can add the same trusted publisher for TestPyPI if you want to test releases first.
+
+### 3. Workflow Setup
+
+The publishing workflow (`.github/workflows/pypi.yml`) should look similar to this (see the full recommended version in the repository):
+
+- It uses `astral-sh/setup-uv@v7`
+- It builds with `uv build --frozen`
+- It publishes with `uv publish` using **Trusted Publishing** (no `PYPI_API_KEY` secret needed)
+- The job references the `pypi` environment and has the required `id-token: write` permission
+
+### 4. How to Release a New Version
+
+1. Update the version in `pyproject.toml`.
+2. Commit and push to `main`.
+3. (Recommended) Create a **GitHub Release** with a tag like `v1.2.3` — this is the cleanest trigger.
+   - Or manually trigger the **PyPI** workflow from the **Actions** tab.
+
+The workflow will:
+- Build the source distribution and wheel
+- Perform a quick smoke test
+- Publish to PyPI (after manual approval if you enabled it)
+
+### Security Notes
+
+- **Trusted Publishing** eliminates the need to store PyPI tokens as GitHub secrets.
+- Using a dedicated `pypi` environment + manual approval.
+- The workflow only runs on protected branches/tags (adjust the `on:` trigger as needed).
 
 ---
 
