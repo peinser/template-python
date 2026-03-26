@@ -365,20 +365,13 @@ After forking or using this template, rename the project to match your package:
 5. **`.github/workflows/`** — update the Docker registry path and image name in `image.yml`.
 6. **`README.md`** — replace badge URLs, logo, and project description.
 7. **`CODEOWNERS`** — replace `@peinser` and `@JoeriHermans` with your GitHub handle(s).
+8. **`docker/Dockerfile`** - replace `template`.
 
----
-
-## Files to modify
+Other files containing references to `template`. Adjust accordingly.
 
 ```
-./docker/Dockerfile
-./mkdocs.yml
 ./uv.lock
 ./CHANGELOG.md
-./CODEOWNERS
-./pyproject.toml
-./docs/index.md
-./README.md
 ./src/template/__init__.py
 ./src/template/__version__.py
 ```
