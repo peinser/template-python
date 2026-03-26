@@ -3,6 +3,7 @@ _answers_file: ".copier-answers.yml"
 _exclude:
   - "README.md"
   - "CHANGELOG.md"
+  - ".git"
 _tasks:
   - "git init --initial-branch=main"
   - "git add ."
